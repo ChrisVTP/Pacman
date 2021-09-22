@@ -1,7 +1,6 @@
 import sys
 import pygame
 from pygame.mixer import Sound
-import pygame_menu
 import time
 from player import *
 from setting import *
