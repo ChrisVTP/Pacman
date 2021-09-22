@@ -66,8 +66,8 @@ class App :
         self.icon = pygame.image.load(START_ICON)
         background = pygame.image.load('maze.png')
         self.background = pygame.transform.scale(background,(MAZE_WIDTH, MAZE_HEIGHT))
-        self.food = pygame.image.load('food.png')
-        self.food = pygame.transform.scale(self.food, (200, 200))
+        # self.food = pygame.image.load('food.png')
+        # self.food = pygame.transform.scale(self.food, (200, 200))
         with open("wall.txt", 'r') as file:
             for y,line in enumerate(file):
 
@@ -95,7 +95,7 @@ class App :
     def draw_points(self):
         for f in self.points:
             if (f[0] == 1 and f[1] == 1) or (f[0] == 26 and f[1] == 1) or (f[0] == 1 and f[1] == 29) or (f[0] == 26 and f[1] == 29) or (f[0] == 13 and f[1] == 29):
-                if self.close == True:
+                if self.close :
                     self.point = pygame.draw.circle(self.background, WHITE, ((f[0] * self.cell_w + TOP_BOTTOM_BUFFER // 2) - 15, (f[1] * self.cell_h + TOP_BOTTOM_BUFFER // 2) - 15), 7)
                 else:
                     self.point = pygame.draw.circle(self.background, BLACK, ((f[0] * self.cell_w + TOP_BOTTOM_BUFFER // 2) - 15, (f[1] * self.cell_h + TOP_BOTTOM_BUFFER // 2) - 15), 7)
