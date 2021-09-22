@@ -22,8 +22,10 @@ class App :
         self.button = {}
         self.wall = []
         self.ghost = []
+        self.points = []
+        self.close = True
+        self.black = time.time()
         self.play_button = {}
-        # self.menu = pygame_menu.Menu('Welcome', 400, 300, theme=pygame_menu.themes.THEME_DARK)   
         self.play_sound(INTRO_SOUND)
         self.sound_time = time.time()
         self.load()
@@ -64,8 +66,11 @@ class App :
         self.icon = pygame.image.load(START_ICON)
         background = pygame.image.load('maze.png')
         self.background = pygame.transform.scale(background,(MAZE_WIDTH, MAZE_HEIGHT))
+        self.food = pygame.image.load('food.png')
+        self.food = pygame.transform.scale(self.food, (200, 200))
         with open("wall.txt", 'r') as file:
             for y,line in enumerate(file):
+
                 for x, char in enumerate(line):
                     if char == "1":
                         self.wall.append(vec(x,y))
@@ -77,13 +82,30 @@ class App :
                         self.ghost.append( Ghost(self, vec(x,y) , INKY) )
                     elif char == "5":
                         self.ghost.append( Ghost(self, vec(x,y) , CLYDE) )
-                        
+                    elif char =="C" or char == "P":
+                        self.points.append(vec(x, y))
+
         # print(self.wall)
     def darw_grid(self):
         for x in range(WIDTH//self.cell_w):
             pygame.draw.line(self.background, GREY , (x*self.cell_w, 0),(x*self.cell_w, HEIGHT))
         for y in range(HEIGHT//self.cell_h):
             pygame.draw.line(self.background, GREY , (0, y * self.cell_h),(WIDTH, y*self.cell_h))
+
+    def draw_points(self):
+        for f in self.points:
+            if (f[0] == 1 and f[1] == 1) or (f[0] == 26 and f[1] == 1) or (f[0] == 1 and f[1] == 29) or (f[0] == 26 and f[1] == 29) or (f[0] == 13 and f[1] == 29):
+                if self.close == True:
+                    self.point = pygame.draw.circle(self.background, WHITE, ((f[0] * self.cell_w + TOP_BOTTOM_BUFFER // 2) - 15, (f[1] * self.cell_h + TOP_BOTTOM_BUFFER // 2) - 15), 7)
+                else:
+                    self.point = pygame.draw.circle(self.background, BLACK, ((f[0] * self.cell_w + TOP_BOTTOM_BUFFER // 2) - 15, (f[1] * self.cell_h + TOP_BOTTOM_BUFFER // 2) - 15), 7)
+            else:
+                self.point = pygame.draw.circle(self.background, WHITE, ((f[0] *self.cell_w + TOP_BOTTOM_BUFFER//2)-15, (f[1] * self.cell_h +TOP_BOTTOM_BUFFER//2)-15), 4)
+
+    def change_state_B(self):
+        if (time.time() - self.black) >= 0.2:
+            self.close = not self.close
+            self.black = time.time()
 
     def draw_wall(self):
         for w in self.wall:
@@ -171,6 +193,7 @@ class App :
                         break
 
     def playing_update(self):
+        self.change_state_B()
         self.player.update()
         self.player.change_state()
         for g in self.ghost:
@@ -181,12 +204,15 @@ class App :
         self.screen.blit (self.background,(TOP_BOTTOM_BUFFER//2, TOP_BOTTOM_BUFFER//2))
         self.draw_button("HOME", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+50], BUTTON_W - 50, BUTTON_H ,RED, "intro", self.play_button)
         self.draw_button("QUIT", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+150], BUTTON_W - 50, BUTTON_H ,RED, "quit", self.play_button)
-        # self.darw_grid()
-        # self.draw_wall()
+        #self.darw_grid()
+        #self.draw_wall()
+        self.draw_points()
         self.draw_text("CURRENT SCORE: {}".format(0),self.screen, [50, 5], 18, WHITE , START_FONT)
         self.draw_text("HIGH SCORE: {}".format(0),self.screen, [WIDTH//2, 5], 18, WHITE , START_FONT)
         self.player.draw()
         for g in self.ghost:
             g.draw()
+
+
         pygame.display.update()
         # print(self.play_button)
