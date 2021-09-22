@@ -86,6 +86,7 @@ class Player():
         self.grid_pos[0] = (self.pix_pos[0]-TOP_BOTTOM_BUFFER + self.app.cell_w//2)//self.app.cell_w+1
         self.grid_pos[1] = (self.pix_pos[1]-TOP_BOTTOM_BUFFER + self.app.cell_h//2)//self.app.cell_h+1
         # print(self.grid_pos)
+        self.app.score += self.inCoin()
         pass
     def moveRight(self):
         self.Pclose = pygame.transform.rotate(self.Pclose, -90)
@@ -113,6 +114,20 @@ class Player():
         self.new_direction = direction
         # if self.can_move(direction):
             
-            
+    def inCoin(self):
+        coin_index = -1
+        # print(len(self.app.points))
+        for i in range(len(self.app.points)):
+            if self.app.points[i] == self.grid_pos:
+                coin_index = i
+                # print(self.app.points[i] ,"  ", self.grid_pos )
+                break
+        if coin_index>=0:
+            coin = self.app.points.pop(coin_index)
+            if (coin in self.app.Bpoints):
+                return 50
+            return 10
+        return 0
+
 
 

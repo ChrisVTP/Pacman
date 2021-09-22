@@ -16,14 +16,18 @@ class App :
         self.running = True
         self.state = 'intro'
         self.score = 0
+        self.highest = 0
         self.cell_h = MAZE_HEIGHT //ROWS
         self.cell_w = MAZE_WIDTH //COLS
         self.player = Player(self,PLAYER_START_POSITION)
         self.button = {}
         self.wall = []
         self.ghost = []
+        self.points = []
+        self.Bpoints = []
+        self.close = True
+        self.black = time.time()
         self.play_button = {}
-        # self.menu = pygame_menu.Menu('Welcome', 400, 300, theme=pygame_menu.themes.THEME_DARK)   
         self.play_sound(INTRO_SOUND)
         self.sound_time = time.time()
         self.load()
@@ -48,6 +52,7 @@ class App :
             else:
                 self.running = False
             self.clock.tick(FPS)
+        self.save_score()
         pygame.quit()
         sys.exit()
 ##################### HELP FUNCTION ################################33
@@ -60,12 +65,26 @@ class App :
             pos[1] = pos[1] - text_size[1] //2
         screen.blit(text,pos)
     
+    def save_score(self):
+        if self.score> self.highest:
+            self.highest = self.score
+        with open("score.txt", 'w') as file:
+            file.write("{}".format(self.highest))
+
     def load(self):
         self.icon = pygame.image.load(START_ICON)
         background = pygame.image.load('maze.png')
         self.background = pygame.transform.scale(background,(MAZE_WIDTH, MAZE_HEIGHT))
+        # self.food = pygame.image.load('food.png')
+        # self.food = pygame.transform.scale(self.food, (200, 200))
+        with open("score.txt", 'r') as file:
+            x = file.readline()
+            if (x.isdigit()):
+                self.highest = int(x)
+
         with open("wall.txt", 'r') as file:
             for y,line in enumerate(file):
+
                 for x, char in enumerate(line):
                     if char == "1":
                         self.wall.append(vec(x,y))
@@ -77,13 +96,36 @@ class App :
                         self.ghost.append( Ghost(self, vec(x,y) , INKY) )
                     elif char == "5":
                         self.ghost.append( Ghost(self, vec(x,y) , CLYDE) )
-                        
+                    elif char =="C" :
+                        self.points.append(vec(x, y))
+                    elif char == "B":
+                        self.Bpoints.append(vec(x, y))
+                        self.points.append(vec(x, y))
+                    elif char == "P":
+                        PLAYER_START_POSITION = vec(x,y)
+
         # print(self.wall)
     def darw_grid(self):
         for x in range(WIDTH//self.cell_w):
             pygame.draw.line(self.background, GREY , (x*self.cell_w, 0),(x*self.cell_w, HEIGHT))
         for y in range(HEIGHT//self.cell_h):
             pygame.draw.line(self.background, GREY , (0, y * self.cell_h),(WIDTH, y*self.cell_h))
+
+    def draw_points(self):
+        for f in self.points:
+            # if (f[0] == 1 and f[1] == 1) or (f[0] == 26 and f[1] == 1) or (f[0] == 1 and f[1] == 29) or (f[0] == 26 and f[1] == 29) or (f[0] == 13 and f[1] == 29):
+            if (f in self.Bpoints):
+                if self.close :
+                    self.point = pygame.draw.circle(self.screen, WHITE, ((f[0] * self.cell_w + TOP_BOTTOM_BUFFER // 2) + self.cell_w//2 , (f[1] * self.cell_h + TOP_BOTTOM_BUFFER // 2)+ self.cell_h//2) , 7)
+                # else:
+                #     self.point = pygame.draw.circle(self.background, BLACK, ((f[0] * self.cell_w + TOP_BOTTOM_BUFFER // 2) - 15, (f[1] * self.cell_h + TOP_BOTTOM_BUFFER // 2) - 15), 7)
+            else:
+                self.point = pygame.draw.circle(self.screen, WHITE, ((f[0] *self.cell_w + TOP_BOTTOM_BUFFER//2)+ self.cell_w//2 , (f[1] * self.cell_h +TOP_BOTTOM_BUFFER//2)+ self.cell_h//2) , 4)
+        # print("Draw coint")
+    def change_state_B(self):
+        if (time.time() - self.black) >= 0.2:
+            self.close = not self.close
+            self.black = time.time()
 
     def draw_wall(self):
         for w in self.wall:
@@ -132,7 +174,7 @@ class App :
         self.draw_text("2805ICT System and Software Design",self.screen, [SCREEN_WIDTH//2, HEIGHT//2], START_TEXT_SIZE,(25, 73, 215)   , START_FONT, center = True)
         self.draw_text("3815ICT Software Engineering ",self.screen, [SCREEN_WIDTH//2, HEIGHT//2 + 50], START_TEXT_SIZE, (25, 73, 215) , START_FONT, center = True)
         self.draw_text("2021-Trimester 2",self.screen, [SCREEN_WIDTH//2, HEIGHT//2 + 100], START_TEXT_SIZE, (170,132,58), START_FONT, center = True)
-        self.draw_text("HIGHEST SCORE: {}".format(self.score),self.screen, [4, 0], START_TEXT_SIZE, (255,255,255) , START_FONT)
+        self.draw_text("HIGHEST SCORE: {}".format(self.highest),self.screen, [4, 0], START_TEXT_SIZE, (255,255,255) , START_FONT)
 
         #Draw Play game button
         self.draw_button("Play", self.screen, [10, HEIGHT//2+150], BUTTON_W, BUTTON_H ,RED, "playing", self.button)
@@ -166,11 +208,12 @@ class App :
             if event.type == pygame.MOUSEBUTTONUP:
                 for key in self.play_button:
                     if self.in_button(self.play_button[key]):
-                        print(self.play_button)
+                        # print(self.play_button)
                         self.state = self.play_button[key][-1] #the state in the button tuple
                         break
 
     def playing_update(self):
+        self.change_state_B()
         self.player.update()
         self.player.change_state()
         for g in self.ghost:
@@ -181,12 +224,17 @@ class App :
         self.screen.blit (self.background,(TOP_BOTTOM_BUFFER//2, TOP_BOTTOM_BUFFER//2))
         self.draw_button("HOME", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+50], BUTTON_W - 50, BUTTON_H ,RED, "intro", self.play_button)
         self.draw_button("QUIT", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+150], BUTTON_W - 50, BUTTON_H ,RED, "quit", self.play_button)
-        # self.darw_grid()
-        # self.draw_wall()
-        self.draw_text("CURRENT SCORE: {}".format(0),self.screen, [50, 5], 18, WHITE , START_FONT)
-        self.draw_text("HIGH SCORE: {}".format(0),self.screen, [WIDTH//2, 5], 18, WHITE , START_FONT)
+        #self.darw_grid()
+        #self.draw_wall()
+        self.draw_points()
+        self.draw_text("CURRENT SCORE: {}".format(self.score),self.screen, [50, 5], 18, WHITE , START_FONT)
+        self.draw_text("HIGH SCORE: {}".format(self.highest),self.screen, [WIDTH//2, 5], 18, WHITE , START_FONT)
         self.player.draw()
         for g in self.ghost:
             g.draw()
+
+
         pygame.display.update()
         # print(self.play_button)
+    
+
