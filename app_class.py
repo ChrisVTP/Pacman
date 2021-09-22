@@ -47,6 +47,9 @@ class App :
                 self.start_event()
                 self.start_update()
                 self.start_draw()
+            elif self.state == 'pausing': 
+                self.pause_event()
+                self.pause_draw()
             else:
                 self.running = False
             self.clock.tick(FPS)
@@ -154,6 +157,25 @@ class App :
     def play_sound(self, soundname):
         sound = pygame.mixer.Sound(soundname)
         sound.play()
+
+##################### PAUSE FUNCTION ################################33
+    def pause_event(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    self.state = "playing"
+            if event.type == pygame.MOUSEBUTTONUP:
+                for key in self.play_button:
+                    if self.in_button(self.play_button[key]):
+                        # print(self.play_button)
+                        self.state = self.play_button[key][-1] #the state in the button tuple
+                        break
+    def pause_draw(self):
+        self.draw_text("PAUSE", self.screen, [SCREEN_WIDTH//2, HEIGHT//2], 100,(250,128,114)   , START_FONT, center = True)
+        self.draw_button("HOME", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+50], BUTTON_W - 50, BUTTON_H ,RED, "intro", self.play_button)
+        self.draw_button("QUIT", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+150], BUTTON_W - 50, BUTTON_H ,RED, "quit", self.play_button)
+        pygame.display.update()
+
 ##################### START FUNCTION ################################33
     def start_event(self):
         for event in pygame.event.get():
@@ -196,6 +218,9 @@ class App :
 ##################### Playing FUNCTION ################################33
     def playing_event(self):
         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    self.state = "pausing"
             if event.type == pygame.QUIT:
                 self.running = False
             if event.type == pygame.KEYDOWN:
