@@ -39,7 +39,6 @@ class App :
                 if time.time()- self.sound_time > INTRO_SOUND_LENGTH+2:
                     self.play_sound(INTRO_SOUND)
                     self.sound_time = time.time()
-
             elif self.state == 'playing':
                 self.playing_event()
                 self.playing_update()
@@ -72,8 +71,8 @@ class App :
 
     def load(self):
         self.icon = pygame.image.load(START_ICON)
-        background = pygame.image.load('maze.png')
-        self.background = pygame.transform.scale(background,(MAZE_WIDTH, MAZE_HEIGHT))
+        # background = pygame.image.load('maze.png')
+        # self.background = pygame.transform.scale(background,(MAZE_WIDTH, MAZE_HEIGHT))
         # self.food = pygame.image.load('food.png')
         # self.food = pygame.transform.scale(self.food, (200, 200))
         with open("score.txt", 'r') as file:
@@ -104,11 +103,11 @@ class App :
                         PLAYER_START_POSITION = vec(x,y)
 
         # print(self.wall)
-    def darw_grid(self):
-        for x in range(WIDTH//self.cell_w):
-            pygame.draw.line(self.background, GREY , (x*self.cell_w, 0),(x*self.cell_w, HEIGHT))
-        for y in range(HEIGHT//self.cell_h):
-            pygame.draw.line(self.background, GREY , (0, y * self.cell_h),(WIDTH, y*self.cell_h))
+    # def darw_grid(self):
+    #     for x in range(WIDTH//self.cell_w):
+    #         pygame.draw.line(self.background, GREY , (x*self.cell_w, 0),(x*self.cell_w, HEIGHT))
+    #     for y in range(HEIGHT//self.cell_h):
+    #         pygame.draw.line(self.background, GREY , (0, y * self.cell_h),(WIDTH, y*self.cell_h))
 
     def draw_points(self):
         for f in self.points:
@@ -128,7 +127,11 @@ class App :
 
     def draw_wall(self):
         for w in self.wall:
-            pygame.draw.circle(self.screen, BLUE, (w[0] *self.cell_w + TOP_BOTTOM_BUFFER//2, w[1] * self.cell_h +TOP_BOTTOM_BUFFER//2),2)
+            pygame.draw.rect(self.screen, BLUE,(w[0]*self.cell_w + TOP_BOTTOM_BUFFER//2, 
+                                                w[1]* self.cell_h+ TOP_BOTTOM_BUFFER//2, 
+                                                self.cell_w, 
+                                                self.cell_h))
+            # pygame.draw.circle(self.screen, BLUE, (w[0] *self.cell_w + TOP_BOTTOM_BUFFER//2, w[1] * self.cell_h +TOP_BOTTOM_BUFFER//2),2)
     def in_button (self, button_pos):
         mouse_pos = pygame.mouse.get_pos()
         pos, w,h = button_pos[:3]
@@ -220,7 +223,8 @@ class App :
             g.change_state()
     def playing_draw(self):
         self.screen.fill(BLACK)
-        self.screen.blit (self.background,(TOP_BOTTOM_BUFFER//2, TOP_BOTTOM_BUFFER//2))
+        # self.screen.blit (self.background,(TOP_BOTTOM_BUFFER//2, TOP_BOTTOM_BUFFER//2))
+        self.draw_wall()
         self.draw_button("HOME", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+50], BUTTON_W - 50, BUTTON_H ,RED, "intro", self.play_button)
         self.draw_button("QUIT", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+150], BUTTON_W - 50, BUTTON_H ,RED, "quit", self.play_button)
         #self.darw_grid()
