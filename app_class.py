@@ -6,6 +6,7 @@ from player import *
 from setting import *
 from ghost import *
 from wall_class import *
+import webbrowser
 pygame.init()
 pygame.mixer.init()
 vec = pygame.math.Vector2
@@ -156,8 +157,12 @@ class App :
         #     button = self.button
         hollow_colour = self.in_button((pos,w,h))
         rec = pygame.Rect(pos[0], pos[1], w, h)
+        
         if hollow_colour:
             default_colour = (default_colour[0]/3, default_colour[1]/3,default_colour[2]/3)
+            pygame.mouse.set_cursor(*pygame.cursors.broken_x)
+        else: 
+            pygame.mouse.set_cursor(*pygame.cursors.diamond)
         pygame.draw.rect(screen, default_colour,rec ,  50, 10)
         self.draw_text(word, screen, [(pos[0]+w//2) , (pos[1]+h//2) ], BUTTON_WORD_SIZE, WHITE, BUTTON_WORD_FONT, True)
         if word not in button:
@@ -333,8 +338,12 @@ class App :
                         print(self.conf_button[key][-1])
                         if (self.conf_button[key][-1] == "new"):
                             self.conf_update()
+                        elif (self.conf_button[key][-1] == "credit"):
+                            webbrowser.open('https://shaunlebron.github.io/pacman-mazegen/', new=1)
+                            
                         else:
                             self.state = self.conf_button[key][-1] #the state in the button tuple
+                            
                         break
 
     def conf_update(self):
@@ -345,7 +354,14 @@ class App :
         self.draw_wall()
         self.draw_button("HOME", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+50], BUTTON_W - 50, BUTTON_H ,RED, "intro", self.conf_button)
         self.draw_button("GENERATE", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+150], BUTTON_W - 50, BUTTON_H ,RED, "new", self.conf_button)
+        Credit_POS = HEIGHT - 20
+        self.draw_button("", self.screen, [10 , HEIGHT - 25], SCREEN_WIDTH -20 , HEIGHT ,BLACK, "credit", self.conf_button)
+        self.draw_text("This Generator is credit for Shaun LeBron(Click here for more information).", self.screen, [10,Credit_POS], STUDENT_SIZE, (255,255,255), STUDENT_FRONT)
         pygame.display.update()
+
+    # def creditTo(self, fromW, fromH, toW, toH):
+    #     mouse_pos = pygame.mouse.get_pos()
+    #     return  mouse_pos[0] > fromW and mouse_pos[1]> fromH and mouse_pos[0] < toW and mouse_pos[1] <  toH
 ##################### Configuring FUNCTION ################################33
 
     def over_event(self):
