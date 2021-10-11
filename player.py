@@ -20,6 +20,7 @@ class Player():
         self.close = True
         self.state_close = time.time()
         self.speed = 2
+        self.eatSoundTime = time.time()
         # self.stop = False
 
     def draw(self):
@@ -120,6 +121,9 @@ class Player():
         for i in range(len(self.app.points)):
             if self.app.points[i] == self.grid_pos:
                 coin_index = i
+                if time.time() -  self.eatSoundTime >=1:
+                    self.app.play_sound("pacman_chomp.wav")
+                    self.eatSoundTime = time.time()
                 # print(self.app.points[i] ,"  ", self.grid_pos )
                 break
         if coin_index>=0:

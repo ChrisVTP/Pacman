@@ -38,6 +38,7 @@ class App :
         self.sound_time = time.time()
         self.load()
     def run(self):
+        self.playingSound = True
         while self.running :
             if self.state == 'intro':
                 self.start_event()
@@ -47,6 +48,9 @@ class App :
                     self.play_sound(INTRO_SOUND)
                     self.sound_time = time.time()
             elif self.state == 'playing':
+                if(self.playingSound):
+                    self.play_sound("pacman_ringtone.wav")
+                    self.playingSound = False
                 self.playing_event()
                 self.playing_update()
                 self.playing_draw()
@@ -233,6 +237,7 @@ class App :
                     if self.in_button(self.button[key]):
                         self.state = self.button[key][-1] #the state in the button tuple
                         pygame.mixer.stop()
+                        
                         break
 
     def start_update(self):
@@ -285,6 +290,7 @@ class App :
                 for key in self.play_button:
                     if self.in_button(self.play_button[key]):
                         # print(self.play_button)
+                        self.playingSound = True
                         self.state = self.play_button[key][-1] #the state in the button tuple
                         break
 
@@ -298,12 +304,13 @@ class App :
         for g in self.ghost:
             g.update()
             g.change_state()
-        # for enermy in self.ghost:
-        #     if(enermy.grid_pos == self.player.grid_pos):
-        #         self.state = "game over"
-        #         # self.running = False
-        #         self.reset(True)
-        #         break
+        for enermy in self.ghost:
+            if(enermy.grid_pos == self.player.grid_pos):
+                self.play_sound("pacman_death.wav")
+                self.state = "game over"
+                # self.running = False
+                self.reset(True)
+                break
         
 
     def playing_draw(self):
