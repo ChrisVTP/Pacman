@@ -1,0 +1,4 @@
+The project is done by Chris Vuong
+
+The Wall Generator Algorith is done via Shaun LeBron
+https://github.com/shaunlebron/pacman-mazegen/blob/gh-pages/randomfill/walls.py
