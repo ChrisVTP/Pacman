@@ -76,7 +76,7 @@ class Ghost:
         return vec((self.grid_pos[0]*self.app.cell_w + 0.5*self.app.cell_w)+TOP_BOTTOM_BUFFER//2,
                    (self.grid_pos[1]*self.app.cell_h + 0.5*self.app.cell_h)+TOP_BOTTOM_BUFFER//2)
 
-    def find_target(self):
+    def find_target(self): # defind the targer as character of the ghost
         if self.character in ["Speedy","Slow"]:
             return self.app.player.grid_pos
         else:
@@ -89,7 +89,7 @@ class Ghost:
             else:
                 return vec(COLS-2, ROWS-2)
 
-    def get_random_direction(self):
+    def get_random_direction(self): # move randomly
         while True:
             number = random.randint(-2, 1)
             if number == -2:
@@ -106,14 +106,13 @@ class Ghost:
 
         return vec(x_dir, y_dir)
 
-    def get_path_direction(self, target):
+    def get_path_direction(self, target): # use AI to find target
         neighbor_grid = self.find_next_neighbor(self.grid_pos, target)
         x = neighbor_grid[0] - self.grid_pos[0]
         y = neighbor_grid[1] - self.grid_pos[1]
         return vec(x,y)
 
-    def find_next_neighbor(self, start,target):
-        # Run BFS to find:
+    def find_next_neighbor(self, start,target): # the algorithms to find the target
         start = [int(start[0]) , int(start[1])]
         target = [int(target[0]) , int(target[1])]
         grid = [[0 for x in range(COLS)] for x in range(ROWS)]# making a grid

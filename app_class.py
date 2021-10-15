@@ -38,6 +38,7 @@ class App :
         self.sound_time = time.time()
         self.load()
     def run(self):
+        # this function start runnning the game
         self.playingSound = True
         while self.running :
             if self.state == 'intro':
@@ -73,6 +74,7 @@ class App :
         sys.exit()
 ##################### HELP FUNCTION ################################33
     def draw_text(self, word,screen,pos, size, color, font_name, center = False):
+        # this function drawing a text in pygame
         font = pygame.font.SysFont(font_name, size)
         text = font.render(word, False, color)
         text_size = text.get_size()
@@ -81,19 +83,14 @@ class App :
             pos[1] = pos[1] - text_size[1] //2
         screen.blit(text,pos)
     
-    def save_score(self):
+    def save_score(self): # saving score after playing
         if self.score> self.highest:
             self.highest = self.score
         with open("score.txt", 'w') as file:
             file.write("{}".format(self.highest))
 
-    def load(self):
+    def load(self): # load the map and score in
         self.icon = pygame.image.load(START_ICON)
-        # self.reset()
-        # background = pygame.image.load('maze.png')
-        # self.background = pygame.transform.scale(background,(MAZE_WIDTH, MAZE_HEIGHT))
-        # self.food = pygame.image.load('food.png')
-        # self.food = pygame.transform.scale(self.food, (200, 200))
         with open("score.txt", 'r') as file:
             x = file.readline()
             if (x.isdigit()):
@@ -121,44 +118,32 @@ class App :
                 elif char == "P":
                     PLAYER_START_POSITION = vec(x,y)
 
-        # print(self.wall)
-    # def darw_grid(self):
-    #     for x in range(WIDTH//self.cell_w):
-    #         pygame.draw.line(self.background, GREY , (x*self.cell_w, 0),(x*self.cell_w, HEIGHT))
-    #     for y in range(HEIGHT//self.cell_h):
-    #         pygame.draw.line(self.background, GREY , (0, y * self.cell_h),(WIDTH, y*self.cell_h))
+     
 
-    def draw_points(self):
+    def draw_points(self): # draw all the coin in the map
         for f in self.points:
-            # if (f[0] == 1 and f[1] == 1) or (f[0] == 26 and f[1] == 1) or (f[0] == 1 and f[1] == 29) or (f[0] == 26 and f[1] == 29) or (f[0] == 13 and f[1] == 29):
             if (f in self.Bpoints):
                 if self.close :
                     self.point = pygame.draw.circle(self.screen, WHITE, ((f[0] * self.cell_w + TOP_BOTTOM_BUFFER // 2) + self.cell_w//2 , (f[1] * self.cell_h + TOP_BOTTOM_BUFFER // 2)+ self.cell_h//2) , 7)
-                # else:
-                #     self.point = pygame.draw.circle(self.background, BLACK, ((f[0] * self.cell_w + TOP_BOTTOM_BUFFER // 2) - 15, (f[1] * self.cell_h + TOP_BOTTOM_BUFFER // 2) - 15), 7)
             else:
                 self.point = pygame.draw.circle(self.screen, WHITE, ((f[0] *self.cell_w + TOP_BOTTOM_BUFFER//2)+ self.cell_w//2 , (f[1] * self.cell_h +TOP_BOTTOM_BUFFER//2)+ self.cell_h//2) , 4)
-        # print("Draw coint")
-    def change_state_B(self):
+    def change_state_B(self): #make the blinking feature for big coin
         if (time.time() - self.black) >= 0.2:
             self.close = not self.close
             self.black = time.time()
 
-    def draw_wall(self):
+    def draw_wall(self): # draw all the wall
         for w in self.wall:
             pygame.draw.rect(self.screen, BLUE,(w[0]*self.cell_w + TOP_BOTTOM_BUFFER//2, 
                                                 w[1]* self.cell_h+ TOP_BOTTOM_BUFFER//2, 
                                                 self.cell_w, 
                                                 self.cell_h))
-            # pygame.draw.circle(self.screen, BLUE, (w[0] *self.cell_w + TOP_BOTTOM_BUFFER//2, w[1] * self.cell_h +TOP_BOTTOM_BUFFER//2),2)
-    def in_button (self, button_pos):
+    def in_button (self, button_pos): # check the mouse in the button or not
         mouse_pos = pygame.mouse.get_pos()
         pos, w,h = button_pos[:3]
         return  mouse_pos[0] > pos[0] and mouse_pos[1]> pos[1] and mouse_pos[0] < pos[0] + w and mouse_pos[1] < pos[1] + h
 
-    def draw_button(self, word, screen, pos, w,h ,default_colour, state, button ):
-        # if type(button) != list():
-        #     button = self.button
+    def draw_button(self, word, screen, pos, w,h ,default_colour, state, button ): # draw a button in game
         hollow_colour = self.in_button((pos,w,h))
         rec = pygame.Rect(pos[0], pos[1], w, h)
         
@@ -171,14 +156,12 @@ class App :
         self.draw_text(word, screen, [(pos[0]+w//2) , (pos[1]+h//2) ], BUTTON_WORD_SIZE, WHITE, BUTTON_WORD_FONT, True)
         if word not in button:
             button[word] = (pos, w,h, state)
-        # print(button)
-        # self.screen.fill(default_colour, rec)
 
-    def play_sound(self, soundname):
+    def play_sound(self, soundname): # playing the game sound
         sound = pygame.mixer.Sound(soundname)
         sound.play()
 
-    def reset(self, replay = False):
+    def reset(self, replay = False): # reset game
         with open("score.txt", 'r') as file:
             x = file.readline()
             if (x.isdigit()):
@@ -210,7 +193,7 @@ class App :
         if replay:  self.score = 0
         self.player = Player(self,PLAYER_START_POSITION)
 ##################### PAUSE FUNCTION ################################33
-    def pause_event(self):
+    def pause_event(self): # temporary stop game
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
@@ -218,17 +201,16 @@ class App :
             if event.type == pygame.MOUSEBUTTONUP:
                 for key in self.play_button:
                     if self.in_button(self.play_button[key]):
-                        # print(self.play_button)
                         self.state = self.play_button[key][-1] #the state in the button tuple
                         break
-    def pause_draw(self):
+    def pause_draw(self): # Draw the pause word
         self.draw_text("PAUSE", self.screen, [SCREEN_WIDTH//2, HEIGHT//2], 100,(250,128,114)   , START_FONT, center = True)
         self.draw_button("HOME", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+50], BUTTON_W - 50, BUTTON_H ,RED, "intro", self.play_button)
         self.draw_button("QUIT", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+150], BUTTON_W - 50, BUTTON_H ,RED, "quit", self.play_button)
         pygame.display.update()
 
 ##################### START FUNCTION ################################33
-    def start_event(self):
+    def start_event(self): # conttrol all the input event in start state
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -242,7 +224,7 @@ class App :
 
     def start_update(self):
         pass
-    def start_draw(self):
+    def start_draw(self): # Draw start state
         self.screen.fill (BLACK)
         icon = pygame.transform.scale(self.icon, (400,100))
         self.screen.blit(icon,[SCREEN_WIDTH//2 -200, HEIGHT//2 -150])
@@ -270,7 +252,7 @@ class App :
     
 
 ##################### Playing FUNCTION ################################33
-    def playing_event(self):
+    def playing_event(self): # control all the event happens in playing state
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
@@ -289,12 +271,11 @@ class App :
             if event.type == pygame.MOUSEBUTTONUP:
                 for key in self.play_button:
                     if self.in_button(self.play_button[key]):
-                        # print(self.play_button)
                         self.playingSound = True
                         self.state = self.play_button[key][-1] #the state in the button tuple
                         break
 
-    def playing_update(self):
+    def playing_update(self): # update after playing
         self.change_state_B()
         self.player.update()
         self.player.change_state()
@@ -308,16 +289,13 @@ class App :
             if(enermy.grid_pos == self.player.grid_pos):
                 self.play_sound("pacman_death.wav")
                 self.state = "game over"
-                # self.running = False
                 self.reset(True)
                 break
         
 
-    def playing_draw(self):
+    def playing_draw(self): # draw the game object
         self.screen.fill(BLACK)
-        # self.screen.blit (self.background,(TOP_BOTTOM_BUFFER//2, TOP_BOTTOM_BUFFER//2))
         self.draw_wall()
-        # self.draw_button("HOME", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+50], BUTTON_W - 50, BUTTON_H ,RED, "intro", self.play_button)
         self.draw_button("QUIT", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+150], BUTTON_W - 50, BUTTON_H ,RED, "quit", self.play_button)
         #self.darw_grid()
         #self.draw_wall()
@@ -330,12 +308,11 @@ class App :
 
 
         pygame.display.update()
-        # print(self.play_button)
     
 ##################### Configuring FUNCTION ################################33
 
 
-    def conf_event(self):
+    def conf_event(self): # control event in configuration mode
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -353,10 +330,10 @@ class App :
                             
                         break
 
-    def conf_update(self):
+    def conf_update(self): # update when it needs to  regenerate map
         self.wallString = self.wallClass.generate()
         self.reset()
-    def conf_draw(self):
+    def conf_draw(self): # draw the conf mode
         self.screen.fill(BLACK)
         self.draw_wall()
         self.draw_button("HOME", self.screen, [SCREEN_WIDTH- BUTTON_W +40 , HEIGHT//2+50], BUTTON_W - 50, BUTTON_H ,RED, "intro", self.conf_button)
@@ -366,9 +343,6 @@ class App :
         self.draw_text("This Generator is credit for Shaun LeBron(Click here for more information).", self.screen, [10,Credit_POS], STUDENT_SIZE, (255,255,255), STUDENT_FRONT)
         pygame.display.update()
 
-    # def creditTo(self, fromW, fromH, toW, toH):
-    #     mouse_pos = pygame.mouse.get_pos()
-    #     return  mouse_pos[0] > fromW and mouse_pos[1]> fromH and mouse_pos[0] < toW and mouse_pos[1] <  toH
 ##################### Configuring FUNCTION ################################33
 
     def over_event(self):
@@ -379,7 +353,6 @@ class App :
                 for key in self.quit_button:
                     if self.in_button(self.quit_button[key]):
                         self.state = self.quit_button[key][-1] #the state in the button tuple
-                        # pygame.mixer.stop()
                         break
 
     def over_update(self):
